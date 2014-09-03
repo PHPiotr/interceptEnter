@@ -38,6 +38,9 @@
 				if (e.keyCode === 13) {
 					if (!settings.canSubmitOnEnter.call(this)) {
 						// Submission prevented by canSubmitOnEnter() returning "false"
+						$('form').submit(function() {
+                                                        return false;
+                                                });
 						return false;
 					}
 				}
