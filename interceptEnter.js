@@ -36,13 +36,22 @@
 
 				// Keyup seems to be too late for intercepting form submission
 				if (e.keyCode === 13) {
-					if (!settings.canSubmitOnEnter.call(this)) {
-						// Submission prevented by canSubmitOnEnter() returning "false"
-						$('form').submit(function() {
-                                                        return false;
-                                                });
-						return false;
-					}
+					
+					$.ajaxSetup(settings.ajaxSetup);
+
+					$.ajax({
+						success: function(e) {
+							// Submission depend on data returned from the server
+							if (e.status) {
+								// Submit can be triggered
+								settings.onTriggeredSubmit.call(that);
+							} else {
+								// Submit prevented
+								settings.onPreventedSubmit.call(that);
+							}
+						}
+					});							
+					return false;
 				}
 
 			}).keyup(function() {
@@ -56,7 +65,14 @@
 	$.interceptEnter.defaults = {
 		element: 'input[type="text"]',	
 		clone_class: 'clone',
-		canSubmitOnEnter: function() {}
+		onPreventedSubmit: function() {},
+		onTriggeredSubmit: function() {
+			$(this).trigger('submit');
+		},
+		ajaxSetup: {
+			url: 'status.php',
+			dataType: 'json'
+		}
 	};
 
 }(jQuery));
